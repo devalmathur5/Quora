@@ -6,6 +6,7 @@ import com.upgrad.quora.service.dao.UserDao;
 import com.upgrad.quora.service.entity.AnswerEntity;
 import com.upgrad.quora.service.entity.QuestionEntity;
 import com.upgrad.quora.service.entity.UserAuthEntity;
+import com.upgrad.quora.service.exception.AnswerNotFoundException;
 import com.upgrad.quora.service.exception.AuthorizationFailedException;
 import com.upgrad.quora.service.exception.InvalidQuestionException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,5 +52,25 @@ public class AnswerService {
         return answerDao.createAnswer(answer);
     }
 
+    @Transactional(propagation = Propagation.REQUIRED)
+    public AnswerEntity editAnswer(final AnswerEntity answer){
+        return answerDao.editAnswer(answer);
+    }
 
+    @Transactional(propagation = Propagation.REQUIRED)
+    public AnswerEntity checkAnswerOwner(final String answerUuid, final Integer userId) throws AuthorizationFailedException {
+        AnswerEntity answerEntity = answerDao.getAnswerByUuidUserId(answerUuid, userId);
+        if(answerEntity == null){
+            throw new AuthorizationFailedException("ATHR-003", "Only the answer owner can edit the answer");
+        }
+        return answerEntity;
+    }
+
+    public AnswerEntity ifAnswerExist(final String uuid) throws AnswerNotFoundException {
+        AnswerEntity answerEntity = answerDao.getAnswerByUuid(uuid);
+        if(answerEntity == null){
+            throw new AnswerNotFoundException("ASR-001", "Entered answer uuid does not exist");
+        }
+        return answerEntity;
+    }
 }

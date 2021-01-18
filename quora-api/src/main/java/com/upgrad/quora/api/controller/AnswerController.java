@@ -1,11 +1,14 @@
 package com.upgrad.quora.api.controller;
 
+import com.upgrad.quora.api.model.AnswerEditRequest;
+import com.upgrad.quora.api.model.AnswerEditResponse;
 import com.upgrad.quora.api.model.AnswerRequest;
 import com.upgrad.quora.api.model.AnswerResponse;
 import com.upgrad.quora.service.business.AnswerService;
 import com.upgrad.quora.service.entity.AnswerEntity;
 import com.upgrad.quora.service.entity.QuestionEntity;
 import com.upgrad.quora.service.entity.UserAuthEntity;
+import com.upgrad.quora.service.exception.AnswerNotFoundException;
 import com.upgrad.quora.service.exception.AuthorizationFailedException;
 import com.upgrad.quora.service.exception.InvalidQuestionException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,5 +47,27 @@ public class AnswerController {
         response.id(answerEntity.getUuid()).status("ANSWER CREATED");
 
         return new ResponseEntity<AnswerResponse>(response, HttpStatus.OK);
+    }
+
+    @RequestMapping(method = RequestMethod.PUT, value = "/answer/edit/{answerId}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity<AnswerEditResponse> editAnswerContent(final AnswerEditRequest answerEditRequest,
+                                                                @PathVariable("answerId") final String answerId,
+                                                                @RequestHeader("authorization") final String authorization) throws AuthorizationFailedException, AnswerNotFoundException {
+        UserAuthEntity userAuthEntity = answerService.checkUser(authorization);
+        answerService.ifAnswerExist(answerId);
+        AnswerEntity answerEntity = answerService.checkAnswerOwner(answerId, userAuthEntity.getUserId());
+
+        AnswerEntity answerToBeEdited = new AnswerEntity();
+        answerToBeEdited.setUuid(answerEntity.getUuid());
+        answerToBeEdited.setUserId(answerEntity.getUserId());
+        answerToBeEdited.setQuestionId(answerEntity.getQuestionId());
+        answerToBeEdited.setAnswer(answerEditRequest.getContent());
+        answerToBeEdited.setDate(ZonedDateTime.now());
+        answerToBeEdited.setId(answerEntity.getId());
+
+        answerService.editAnswer(answerToBeEdited);
+
+        AnswerEditResponse response = new AnswerEditResponse().id(answerToBeEdited.getUuid()).status("ANSWER EDITED");
+        return new ResponseEntity<AnswerEditResponse>(response, HttpStatus.OK);
     }
 }
