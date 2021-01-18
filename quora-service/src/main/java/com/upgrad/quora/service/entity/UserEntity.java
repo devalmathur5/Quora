@@ -76,6 +76,9 @@ public class UserEntity {
     @Size(max = 30)
     private String contactNumber;
 
+    //@OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
+    //private List<QuestionEntity> questions = new ArrayList<>();
+
     public Integer getId() {
         return id;
     }
@@ -179,6 +182,15 @@ public class UserEntity {
     public void setContactNumber(String contactNumber) {
         this.contactNumber = contactNumber;
     }
+
+    /*
+    public List<QuestionEntity> getQuestions() {
+        return questions;
+    }
+
+    public void setQuestions(List<QuestionEntity> questions) {
+        this.questions = questions;
+    }*/
 
     //Why are below these here?
     // equals() hashcode() & toString()???

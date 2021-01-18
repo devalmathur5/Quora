@@ -7,6 +7,13 @@ import java.time.ZonedDateTime;
 
 @Entity
 @Table(name = "question", schema = "public")
+@NamedQueries(
+        {
+                @NamedQuery(name = "getAllQuestions", query = "select q.uuid, q.content from QuestionEntity q"),
+                @NamedQuery(name = "getQuestionById", query = "select q from QuestionEntity q where q.uuid = :uuid"),
+                @NamedQuery(name = "getQuestionByUserId", query = "select q from QuestionEntity q where q.userId = :userid")
+        }
+)
 public class QuestionEntity {
 
     @Id
@@ -24,15 +31,15 @@ public class QuestionEntity {
     @NotNull
     private String content;
 
-    @Column(name = "timestamp")
+    @Column(name = "date")
     @NotNull
-    private ZonedDateTime timestamp;
+    private ZonedDateTime date;
 
     @Column(name = "user_id")
     @NotNull
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "id")
-    private UserEntity user;
+    // @ManyToOne(fetch = FetchType.EAGER)
+    // @JoinColumn(name = "id")
+    private Integer userId;
 
     public Integer getId() {
         return id;
@@ -58,19 +65,19 @@ public class QuestionEntity {
         this.content = content;
     }
 
-    public ZonedDateTime getTimestamp() {
-        return timestamp;
+    public ZonedDateTime getDate() {
+        return date;
     }
 
-    public void setTimestamp(ZonedDateTime timestamp) {
-        this.timestamp = timestamp;
+    public void setDate(ZonedDateTime date) {
+        this.date = date;
     }
 
-    public UserEntity getUser() {
-        return user;
+    public Integer getUserId() {
+        return userId;
     }
 
-    public void setUser(UserEntity user) {
-        this.user = user;
+    public void setUserId(Integer userId) {
+        this.userId = userId;
     }
 }
