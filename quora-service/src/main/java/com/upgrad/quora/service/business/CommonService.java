@@ -35,4 +35,13 @@ public class CommonService {
             return userEntity;
         }
     }
+
+    @Transactional(propagation = Propagation.REQUIRED)
+    public UserEntity ifUserExist(final String userUuid) throws UserNotFoundException {
+        UserEntity userEntity = userDao.getUserByUuid(userUuid);
+        if(userEntity == null){
+            throw new UserNotFoundException("USR-001", "User with entered uuid whose question details are to be seen doesn not exits");
+        }
+        return userEntity;
+    }
 }

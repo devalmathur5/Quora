@@ -1,12 +1,14 @@
 package com.upgrad.quora.api.controller;
 
 import com.upgrad.quora.api.model.*;
+import com.upgrad.quora.service.business.CommonService;
 import com.upgrad.quora.service.business.QuestionService;
-import com.upgrad.quora.service.dao.UserDao;
 import com.upgrad.quora.service.entity.QuestionEntity;
 import com.upgrad.quora.service.entity.UserAuthEntity;
+import com.upgrad.quora.service.entity.UserEntity;
 import com.upgrad.quora.service.exception.AuthorizationFailedException;
 import com.upgrad.quora.service.exception.InvalidQuestionException;
+import com.upgrad.quora.service.exception.UserNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -14,6 +16,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -24,7 +28,7 @@ public class QuestionController {
     private QuestionService questionService;
 
     @Autowired
-    private UserDao userDao;
+    private CommonService commonService;
 
     @RequestMapping(method = RequestMethod.POST, value = "/question/create", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<QuestionResponse> createQuestion(final QuestionRequest questionRequest,
@@ -44,22 +48,20 @@ public class QuestionController {
         return new ResponseEntity<QuestionResponse>(response, HttpStatus.OK);
     }
 
-    // Not Working
-    /*
     @RequestMapping(method = RequestMethod.GET, value = "/question/all", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity<List<QuestionDetailsResponse>> getAllQuestions(@RequestHeader("authorization") final String authorization) throws AuthorizationFailedException {
+    public ResponseEntity<Object> getAllQuestions(@RequestHeader("authorization") final String authorization) throws AuthorizationFailedException {
         UserAuthEntity userAuthEntity = questionService.userAuthCheck(authorization);
         List<QuestionEntity> allQuestions = questionService.getAllQuestions();
-
-        List<QuestionDetailsResponse> questionResponse = new ArrayList<>(allQuestions.size());
+        List<QuestionDetailsResponse> qdr = new ArrayList<>();
 
         for(int i=0; i<allQuestions.size(); i++){
-            questionResponse.add(i, new QuestionDetailsResponse().id(allQuestions.get(i).getUuid())
-                                                .content(allQuestions.get(i).getContent()));
-        }
 
-        return new ResponseEntity<QuestionDetailsResponse>(questionResponse, HttpStatus.OK);
-    }*/
+            QuestionDetailsResponse questionDetailsResponse = new QuestionDetailsResponse().
+                    id(allQuestions.get(i).getUuid()).content(allQuestions.get(i).getContent());
+            qdr.add(questionDetailsResponse);
+        }
+        return new ResponseEntity<Object>(qdr, HttpStatus.OK);
+    }
 
     @RequestMapping(method = RequestMethod.PUT, value = "/question/edit/{questionId}", consumes = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<QuestionEditResponse> editQuestionContent(final QuestionEditRequest questionRequest,
@@ -103,27 +105,21 @@ public class QuestionController {
         return new ResponseEntity<QuestionDeleteResponse> (questionDeleteResponse, HttpStatus.OK);
     }
 
-    /*
+
     @RequestMapping(method = RequestMethod.GET, value = "question/all/{userId}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity<List<QuestionDetailsResponse>> getAllQuestionsnsByUser(@PathVariable("userId") final String userUuid,
-                                                                    @RequestHeader("authorization") final String authorization) throws AuthorizationFailedException, UserNotFoundException {
+    public ResponseEntity<Object> getAllQuestionsnsByUser(@PathVariable("userId") final String userUuid,
+                                                                    @RequestHeader("authorization") final String authorization) throws AuthorizationFailedException, UserNotFoundException, UserNotFoundException {
         UserAuthEntity userAuthEntity = questionService.userAuthCheck(authorization);
-        UserEntity userEntity = null;
-        try {
-            userEntity = userDao.getUserByUuid(userUuid);
-        }catch (NoResultException nre){
-            throw new UserNotFoundException("USR-001", "User with entered uuid whose question details are to be seen does not exist");
-        }
+        UserEntity userEntity = commonService.ifUserExist(userUuid);
 
         List<QuestionEntity> questions = questionService.getAllQuestionsById(userEntity.getId());
 
-        List<QuestionDetailsResponse> questionDetails = new ArrayList<>(questions.size());
-
+        List<QuestionDetailsResponse> questionDetailsResponses = new ArrayList<>();
         for(int i=0; i<questions.size(); i++){
+            QuestionDetailsResponse qdr = new QuestionDetailsResponse();
+            questionDetailsResponses.add(qdr.id(questions.get(i).getUuid()).content(questions.get(i).getContent()));
+        }
 
-       }
-
-        ResponseEntity<List<QuestionDetailsResponse>> response = new ResponseEntity<>(questionDetails, HttpStatus.OK);
-        return response;
-    }*/
+        return new ResponseEntity<Object>(questionDetailsResponses, HttpStatus.OK);
+    }
 }

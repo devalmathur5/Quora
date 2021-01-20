@@ -32,7 +32,7 @@ public class QuestionService {
             throw new AuthorizationFailedException("ATHR-001", "User has not signed in");
         }
         else if(userAuthEntity.getLogoutAt() != null){
-            throw new AuthorizationFailedException("ATHR-002", "User is signed out. Sign in first to post a question");
+            throw new AuthorizationFailedException("ATHR-002", "User is signed out.Sign in first to post a question");
         }
         return userAuthEntity;
     }

@@ -41,4 +41,19 @@ public class AnswerDao {
         entityManager.merge(answer);
         return answer;
     }
+
+    public AnswerEntity answerByUserId(final String uuid){
+        try{
+            return entityManager.createNamedQuery("answerByUserId", AnswerEntity.class)
+                    .setParameter("uuid", uuid).getSingleResult();
+        }
+        catch (NoResultException nre){
+            return null;
+        }
+    }
+
+    public AnswerEntity deleteAnswer(AnswerEntity answer){
+        entityManager.remove(answer);
+        return answer;
+    }
 }

@@ -6,6 +6,7 @@ import com.upgrad.quora.service.dao.UserDao;
 import com.upgrad.quora.service.entity.AnswerEntity;
 import com.upgrad.quora.service.entity.QuestionEntity;
 import com.upgrad.quora.service.entity.UserAuthEntity;
+import com.upgrad.quora.service.entity.UserEntity;
 import com.upgrad.quora.service.exception.AnswerNotFoundException;
 import com.upgrad.quora.service.exception.AuthorizationFailedException;
 import com.upgrad.quora.service.exception.InvalidQuestionException;
@@ -66,11 +67,24 @@ public class AnswerService {
         return answerEntity;
     }
 
+    @Transactional(propagation = Propagation.REQUIRED)
     public AnswerEntity ifAnswerExist(final String uuid) throws AnswerNotFoundException {
         AnswerEntity answerEntity = answerDao.getAnswerByUuid(uuid);
         if(answerEntity == null){
             throw new AnswerNotFoundException("ASR-001", "Entered answer uuid does not exist");
         }
         return answerEntity;
+    }
+
+    @Transactional(propagation = Propagation.REQUIRED)
+    public AnswerEntity deleteAnswer(final Integer userId, final String answerUuid) throws AuthorizationFailedException {
+        AnswerEntity answerEntity = answerDao.answerByUserId(answerUuid);
+        UserEntity user = userDao.getUserById(userId);
+        if(answerEntity!=null || user.getRole().equals("admin")) {
+            answerDao.deleteAnswer(answerEntity);
+            return answerEntity;
+        }else{
+            throw new AuthorizationFailedException("ATHR-003", "Only the answer owner or admin can delete the answer");
+        }
     }
 }
