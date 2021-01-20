@@ -15,6 +15,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -81,9 +83,20 @@ public class AnswerController {
         return new ResponseEntity<AnswerDeleteResponse>(response, HttpStatus.OK);
     }
 
-    /*
-    @RequestMapping(method = RequestMethod.GET, value = "answer/all/{questionId}", co)
-    public ResponseEntity<AnswerResponse> getAllAnswersToQuestion(){
 
-    }*/
+    @RequestMapping(method = RequestMethod.GET, value = "answer/all/{questionId}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity<Object> getAllAnswersToQuestion(@PathVariable("questionId") final String questionId,
+                                                                  @RequestHeader("authorization") final String authorization) throws AuthorizationFailedException, InvalidQuestionException {
+        UserAuthEntity userAuthEntity = answerService.checkUserForAllAnswers(authorization);
+        QuestionEntity questionEntity = answerService.ifQuestionExist(questionId);
+
+        List<AnswerEntity> allAnswers = answerService.getAllAnswersToAQuestion(questionEntity.getId());
+        List<AnswerDetailsResponse> answerList = new ArrayList<>();
+        for(int i=0; i<allAnswers.size(); i++){
+            AnswerDetailsResponse adr = new AnswerDetailsResponse();
+            adr.id(allAnswers.get(i).getUuid()).questionContent(questionEntity.getContent()).answerContent(allAnswers.get(i).getAnswer());
+            answerList.add(adr);
+        }
+        return new ResponseEntity<Object>(answerList, HttpStatus.OK);
+    }
 }

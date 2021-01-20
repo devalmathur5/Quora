@@ -15,6 +15,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 public class AnswerService {
 
@@ -86,5 +88,31 @@ public class AnswerService {
         }else{
             throw new AuthorizationFailedException("ATHR-003", "Only the answer owner or admin can delete the answer");
         }
+    }
+
+    @Transactional(propagation = Propagation.REQUIRED)
+    public UserAuthEntity checkUserForAllAnswers(final String userAuthToken) throws AuthorizationFailedException {
+        UserAuthEntity userAuthEntity = userDao.getUserAuthByAccesstoken(userAuthToken);
+        if(userAuthEntity == null){
+            throw new AuthorizationFailedException("ATHR-001", "User has not signed in");
+        }
+        else if(userAuthEntity.getLogoutAt() != null){
+            throw new AuthorizationFailedException("ATHR-002", "User is signed out.Sign in first to get the Answer");
+        }
+        return userAuthEntity;
+    }
+
+    @Transactional(propagation = Propagation.REQUIRED)
+    public QuestionEntity ifQuestionExist(String questionUuid) throws InvalidQuestionException {
+        QuestionEntity questionEntity = questionDao.getQuestionById(questionUuid);
+        if(questionEntity == null){
+            throw new InvalidQuestionException("QUES-001", "The question with entered uuid whose details to be seen does not exist");
+        }
+        return questionEntity;
+    }
+
+    @Transactional(propagation = Propagation.REQUIRED)
+    public List<AnswerEntity> getAllAnswersToAQuestion(final Integer questionId){
+        return answerDao.getAllAnsForAQuestion(questionId);
     }
 }
