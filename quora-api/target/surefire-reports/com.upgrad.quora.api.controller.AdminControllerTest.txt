@@ -1,0 +1,22 @@
+-------------------------------------------------------------------------------
+Test set: com.upgrad.quora.api.controller.AdminControllerTest
+-------------------------------------------------------------------------------
+Tests run: 3, Failures: 0, Errors: 3, Skipped: 0, Time elapsed: 57.888 s <<< FAILURE! - in com.upgrad.quora.api.controller.AdminControllerTest
+deleteWithnonadminAsRole(com.upgrad.quora.api.controller.AdminControllerTest)  Time elapsed: 2.794 s  <<< ERROR!
+org.springframework.web.util.NestedServletException: Request processing failed; nested exception is com.upgrad.quora.service.exception.UserNotFoundException
+	at com.upgrad.quora.api.controller.AdminControllerTest.deleteWithnonadminAsRole(AdminControllerTest.java:37)
+Caused by: com.upgrad.quora.service.exception.UserNotFoundException
+	at com.upgrad.quora.api.controller.AdminControllerTest.deleteWithnonadminAsRole(AdminControllerTest.java:37)
+
+deleteWithNonExistingAccessToken(com.upgrad.quora.api.controller.AdminControllerTest)  Time elapsed: 0.009 s  <<< ERROR!
+org.springframework.web.util.NestedServletException: Request processing failed; nested exception is com.upgrad.quora.service.exception.AuthorizationFailedException
+	at com.upgrad.quora.api.controller.AdminControllerTest.deleteWithNonExistingAccessToken(AdminControllerTest.java:29)
+Caused by: com.upgrad.quora.service.exception.AuthorizationFailedException
+	at com.upgrad.quora.api.controller.AdminControllerTest.deleteWithNonExistingAccessToken(AdminControllerTest.java:29)
+
+deleteNonExistingUser(com.upgrad.quora.api.controller.AdminControllerTest)  Time elapsed: 0.012 s  <<< ERROR!
+org.springframework.web.util.NestedServletException: Request processing failed; nested exception is com.upgrad.quora.service.exception.UserNotFoundException
+	at com.upgrad.quora.api.controller.AdminControllerTest.deleteNonExistingUser(AdminControllerTest.java:46)
+Caused by: com.upgrad.quora.service.exception.UserNotFoundException
+	at com.upgrad.quora.api.controller.AdminControllerTest.deleteNonExistingUser(AdminControllerTest.java:46)
+
